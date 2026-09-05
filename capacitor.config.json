@@ -1,0 +1,23 @@
+{
+  "appId": "com.visionattenda.app",
+  "appName": "VisionAttenda AI",
+  "webDir": "static",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "http://10.0.2.2:5000",
+    "cleartext": true
+  },
+  "plugins": {
+    "Camera": {
+      "permissions": ["camera"]
+    },
+    "Haptics": {
+      "enabled": true
+    }
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - AI Face Recognition Attendance System{% endblock %}
+{% block page_title %}System Analytics Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <!-- Status Bar Banner -->
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 p-3 glass-card">
+    <div class="d-flex align-items-center gap-3">
+      <span class="badge bg-success bg-opacity-25 text-success border border-success px-3 py-2">
+        <i class="bi bi-cpu-fill me-1"></i> AI Recognition Engine: ACTIVE
+      </span>
+      <span class="badge bg-primary bg-opacity-25 text-primary border border-primary px-3 py-2">
+        <i class="bi bi-clock-history me-1"></i> Active Session: {{ active_session }}
+      </span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <span class="text-muted" style="font-size: 13px;"><i class="bi bi-calendar3 me-1"></i> {{ current_date }}</span>
+    </div>
+  </div>
+
+  <!-- Key Metric Cards Row -->
+  <div class="row g-3 mb-4">
+    <!-- Total Students -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card stat-card">
+        <div class="stat-icon-wrapper stat-icon-primary">
+          <i class="bi bi-mortarboard-fill"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="dashTotalStudents">{{ summary.total_students }}</h3>
+          <p>Total Registered Students</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Present Today -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card stat-card">
+        <div class="stat-icon-wrapper stat-icon-success">
+          <i class="bi bi-person-check-fill"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="dashPresentToday">{{ summary.present_count }}</h3>
+          <p>Present Today ({{ summary.late_count }} Late)</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Absent Today -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card stat-card">
+        <div class="stat-icon-wrapper stat-icon-danger">
+          <i class="bi bi-person-x-fill"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="dashAbsentToday">{{ summary.absent_count }}</h3>
+          <p>Absent Today</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Attendance Rate -->
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="glass-card stat-card">
+        <div class="stat-icon-wrapper stat-icon-accent">
+          <i class="bi bi-pie-chart-fill"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="dashAttendanceRate">{{ summary.attendance_rate }}%</h3>
+          <p>Today's Attendance Rate</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts & Quick Launch Row -->
+  <div class="row g-4 mb-4">
+    <!-- Department Attendance Breakdown Chart -->
+    <div class="col-12 col-lg-8">
+      <div class="glass-card h-100">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-bar-chart-fill text-primary"></i> Department Attendance Today</h5>
+          <span class="badge bg-dark border border-secondary text-muted">Real-Time</span>
+        </div>
+        <div class="card-body-tech" style="height: 310px;">
+          <canvas id="deptAttendanceChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ratio Donut Chart -->
+    <div class="col-12 col-lg-4">
+      <div class="glass-card h-100">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-pie-chart-fill text-accent"></i> Attendance Status Ratio</h5>
+        </div>
+        <div class="card-body-tech d-flex align-items-center justify-content-center" style="height: 310px;">
+          <canvas id="statusDonutChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Tables & Logs Row -->
+  <div class="row g-4">
+    <!-- Recent Live Recognitions -->
+    <div class="col-12 col-xl-8">
+      <div class="glass-card h-100">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-person-check text-success"></i> Recent Attendance Records Today</h5>
+          <a href="{{ url_for('attendance.attendance_view') }}" class="btn btn-sm btn-outline-info">
+            View All Records &rarr;
+          </a>
+        </div>
+        <div class="card-body-tech p-0">
+          <div class="table-responsive">
+            <table class="table table-tech mb-0">
+              <thead>
+                <tr>
+                  <th>Student</th>
+                  <th>Department</th>
+                  <th>Time</th>
+                  <th>Status</th>
+                  <th>Confidence</th>
+                </tr>
+              </thead>
+              <tbody id="recentAttendanceTable">
+                {% if summary.recent_attendance %}
+                  {% for r in summary.recent_attendance %}
+                    <tr>
+                      <td>
+                        <div class="d-flex align-items-center gap-2">
+                          <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px;">{{ r.student_name[:1] }}</div>
+                          <div>
+                            <span class="fw-bold text-light">{{ r.student_name }}</span>
+                            <div class="text-muted" style="font-size: 11px;">ID: {{ r.student_id }}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td><span class="text-muted">{{ r.department }}</span></td>
+                      <td><span class="font-monospace text-primary">{{ r.attendance_time }}</span></td>
+                      <td>
+                        <span class="badge-tech-{{ 'present' if r.status == 'Present' else ('late' if r.status == 'Late' else 'absent') }}">
+                          {{ r.status }}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="text-info fw-semibold">{{ r.confidence }}%</span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% else %}
+                  <tr>
+                    <td colspan="5" class="text-center py-4 text-muted">
+                      <i class="bi bi-inbox fs-3 d-block mb-2 opacity-50"></i>
+                      No attendance marked yet today. Start the Live Kiosk to begin automatic attendance.
+                    </td>
+                  </tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Activity & Audit Log -->
+    <div class="col-12 col-xl-4">
+      <div class="glass-card h-100">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-activity text-warning"></i> System Activity Log</h5>
+        </div>
+        <div class="card-body-tech">
+          <div class="activity-feed-list">
+            {% if recent_logs %}
+              {% for log in recent_logs %}
+                <div class="activity-feed-item">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-dot text-primary fs-4 lh-1"></i>
+                    <div>
+                      <div class="text-light" style="font-size: 12px;">{{ log.description }}</div>
+                      <div class="text-muted" style="font-size: 10px;">{{ log.created_at }}</div>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="text-center text-muted py-4">No recent activity logs.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.INITIAL_SUMMARY = {{ summary | tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

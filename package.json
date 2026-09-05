@@ -1,0 +1,18 @@
+{
+  "name": "ai-face-recognition-attendance-management-system",
+  "version": "1.0.0",
+  "description": "A state-of-the-art, production-style, real-time AI-powered Face Recognition Attendance Management System built with **Python Flask**, **OpenCV DNN (YuNet / SFace)**, **MySQL**, and a high-aesthetic **Dark Glassmorphism Web Dashboard**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0"
+  }
+}

@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}System Settings - AI Face Recognition Attendance System{% endblock %}
+{% block page_title %}System Settings & AI Parameters{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+
+  <div class="row g-4">
+    <!-- LEFT: AI Recognition & Session Parameters -->
+    <div class="col-12 col-lg-6">
+      <div class="glass-card mb-4">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-sliders text-primary"></i> AI Face Recognition Parameters</h5>
+          <span class="badge bg-primary bg-opacity-25 text-primary border border-primary">Biometric Core</span>
+        </div>
+        <div class="card-body-tech">
+          <form id="aiSettingsForm" onsubmit="saveAiSettings(event)">
+            
+            <div class="mb-4">
+              <div class="d-flex justify-content-between mb-2">
+                <label class="form-tech-label mb-0" for="thresholdSetting">Face Recognition Confidence Threshold</label>
+                <span id="thresholdValText" class="text-primary fw-bold">{{ (threshold * 100) | round | int }}%</span>
+              </div>
+              <input type="range" class="form-range" id="thresholdSetting" min="0.45" max="0.90" step="0.01" value="{{ threshold }}" oninput="document.getElementById('thresholdValText').textContent = Math.round(this.value * 100) + '%'">
+              <small class="text-muted d-block mt-1">Recommended: <strong>60% - 70%</strong>. Higher values require closer facial matches; lower values increase tolerance.</small>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-tech-label" for="cameraIndexSetting">Default Hardware Camera Device Index</label>
+              <select class="form-select form-tech-control" id="cameraIndexSetting">
+                <option value="0" {% if camera_index == 0 %}selected{% endif %}>Camera 0 (Built-in / Primary Webcam)</option>
+                <option value="1" {% if camera_index == 1 %}selected{% endif %}>Camera 1 (External USB Webcam)</option>
+                <option value="2" {% if camera_index == 2 %}selected{% endif %}>Camera 2 (Secondary USB Camera)</option>
+              </select>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-tech-label" for="cooldownSetting">Anti-Duplication Cooldown (Seconds)</label>
+              <input type="number" class="form-control form-tech-control" id="cooldownSetting" value="{{ cooldown_seconds }}" min="10" max="600">
+              <small class="text-muted d-block mt-1">Prevents duplicate attendance logging within the same session.</small>
+            </div>
+
+            <button type="submit" class="btn btn-tech-primary">
+              <i class="bi bi-check2-circle"></i> Save AI Parameters
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Session Time Settings -->
+      <div class="glass-card">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-clock-history text-success"></i> Attendance Session & Timing Rules</h5>
+        </div>
+        <div class="card-body-tech">
+          <form id="sessionSettingsForm" onsubmit="saveSessionSettings(event)">
+            
+            <div class="mb-3">
+              <label class="form-tech-label" for="sessionNameSetting">Session Name</label>
+              <input type="text" class="form-control form-tech-control" id="sessionNameSetting" value="{{ attendance_session }}" required>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-4">
+                <label class="form-tech-label" for="startTimeSetting">Start Time</label>
+                <input type="time" class="form-control form-tech-control" id="startTimeSetting" value="{{ session_start_time }}">
+              </div>
+              <div class="col-4">
+                <label class="form-tech-label" for="lateTimeSetting">Late Cutoff</label>
+                <input type="time" class="form-control form-tech-control" id="lateTimeSetting" value="{{ session_late_time }}">
+              </div>
+              <div class="col-4">
+                <label class="form-tech-label" for="endTimeSetting">End Time</label>
+                <input type="time" class="form-control form-tech-control" id="endTimeSetting" value="{{ session_end_time }}">
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-tech-primary">
+              <i class="bi bi-check2-circle"></i> Save Session Rules
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Admin Security & Database Health -->
+    <div class="col-12 col-lg-6">
+      
+      <!-- Change Password Card -->
+      <div class="glass-card mb-4">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-shield-lock-fill text-warning"></i> Admin Credentials & Security</h5>
+        </div>
+        <div class="card-body-tech">
+          <form id="passwordForm" onsubmit="changeAdminPassword(event)">
+            <div class="mb-3">
+              <label class="form-tech-label">Logged In User</label>
+              <input type="text" class="form-control form-tech-control" value="{{ user.username }} ({{ user.email }})" disabled>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-tech-label" for="currPass">Current Password *</label>
+              <input type="password" class="form-control form-tech-control" id="currPass" placeholder="••••••••" required>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-6">
+                <label class="form-tech-label" for="newPass">New Password *</label>
+                <input type="password" class="form-control form-tech-control" id="newPass" placeholder="••••••••" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-tech-label" for="confPass">Confirm New Password *</label>
+                <input type="password" class="form-control form-tech-control" id="confPass" placeholder="••••••••" required>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-tech-primary">
+              <i class="bi bi-key-fill"></i> Update Admin Password
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Database & System Health -->
+      <div class="glass-card mb-4">
+        <div class="card-header-tech">
+          <h5><i class="bi bi-hdd-network-fill text-info"></i> System & Database Status</h5>
+          <button type="button" class="btn btn-sm btn-outline-info" onclick="checkDbHealth()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh Health
+          </button>
+        </div>
+        <div class="card-body-tech" id="dbHealthContainer">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted">Active Database Engine:</span>
+            <span class="badge bg-primary px-3 py-1 text-uppercase">{{ db_type }}</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted">Database Health:</span>
+            <span id="healthStatus" class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Connected</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted">Query Latency:</span>
+            <span id="healthLatency" class="text-light font-monospace">-- ms</span>
+          </div>
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="text-muted">Enrolled Face Embeddings:</span>
+            <span id="healthEnrolled" class="text-light font-monospace">--</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Compliance Disclaimer -->
+      <div class="p-3 rounded bg-dark border border-secondary border-opacity-50 text-muted" style="font-size: 12px;">
+        <h6 class="text-light fs-6 mb-2"><i class="bi bi-shield-shaded text-primary me-1"></i> Institutional Biometric Compliance</h6>
+        This system processes mathematical biometric embeddings for institutional attendance verification under explicit policy compliance. Raw video streams are processed ephemerally in RAM and never stored. Administrators can purge student biometric profiles upon request via the Student Profile ledger.
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  async function saveAiSettings(e) {
+    e.preventDefault();
+    const threshold = parseFloat(document.getElementById('thresholdSetting').value);
+    const camera_index = parseInt(document.getElementById('cameraIndexSetting').value);
+    const cooldown_seconds = parseInt(document.getElementById('cooldownSetting').value);
+
+    try {
+      const res = await apiFetch('/api/settings/update', {
+        method: 'POST',
+        body: JSON.stringify({ threshold, camera_index, cooldown_seconds })
+      });
+      showToast(res.message, 'success');
+    } catch (err) {
+      showToast(err.message, 'danger');
+    }
+  }
+
+  async function saveSessionSettings(e) {
+    e.preventDefault();
+    const attendance_session = document.getElementById('sessionNameSetting').value.trim();
+    const session_start_time = document.getElementById('startTimeSetting').value;
+    const session_late_time = document.getElementById('lateTimeSetting').value;
+    const session_end_time = document.getElementById('endTimeSetting').value;
+
+    try {
+      const res = await apiFetch('/api/settings/update', {
+        method: 'POST',
+        body: JSON.stringify({ attendance_session, session_start_time, session_late_time, session_end_time })
+      });
+      showToast(res.message, 'success');
+    } catch (err) {
+      showToast(err.message, 'danger');
+    }
+  }
+
+  async function changeAdminPassword(e) {
+    e.preventDefault();
+    const current_password = document.getElementById('currPass').value;
+    const new_password = document.getElementById('newPass').value;
+    const confirm_password = document.getElementById('confPass').value;
+
+    if (new_password !== confirm_password) {
+      showToast('New passwords do not match.', 'warning');
+      return;
+    }
+
+    try {
+      const res = await apiFetch('/api/settings/change-password', {
+        method: 'POST',
+        body: JSON.stringify({ current_password, new_password, confirm_password })
+      });
+      showToast(res.message, 'success');
+      document.getElementById('passwordForm').reset();
+    } catch (err) {
+      showToast(err.message, 'danger');
+    }
+  }
+
+  async function checkDbHealth() {
+    try {
+      const res = await apiFetch('/api/settings/db-health');
+      document.getElementById('healthLatency').textContent = `${res.latency_ms} ms`;
+      document.getElementById('healthEnrolled').textContent = `${res.enrolled_faces} students enrolled`;
+      document.getElementById('healthStatus').innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Connected & Operational';
+      showToast('Database health verified: ' + res.latency_ms + ' ms latency.', 'success');
+    } catch (err) {
+      document.getElementById('healthStatus').innerHTML = '<i class="bi bi-x-circle-fill text-danger me-1"></i> Connection Error';
+      showToast(err.message, 'danger');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    checkDbHealth();
+  });
+</script>
+{% endblock %}

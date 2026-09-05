@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login - AI Face Attendance System</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.25) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(6, 182, 212, 0.25) 0px, transparent 50%),
+        radial-gradient(at 50% 50%, rgba(15, 23, 42, 0.95) 0px, transparent 100%);
+    }
+    .login-box {
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+    }
+    .login-card {
+      background: rgba(17, 24, 39, 0.85);
+      border: 1px solid var(--border-glow);
+      box-shadow: 0 0 40px rgba(6, 182, 212, 0.15);
+      border-radius: var(--radius-lg);
+      padding: 40px 36px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-box">
+    <div class="text-center mb-4">
+      <div class="brand-icon mx-auto mb-3" style="width: 58px; height: 58px; font-size: 30px;">
+        <i class="bi bi-person-bounding-box"></i>
+      </div>
+      <h2 class="fw-bold text-white mb-1">VisionAttenda AI</h2>
+      <p class="text-muted" style="font-size: 13px;">Face Recognition Biometric Attendance System</p>
+    </div>
+
+    <div class="login-card">
+      <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom border-secondary border-opacity-25">
+        <h5 class="text-white mb-0 fw-semibold">Admin Sign In</h5>
+        <span class="badge bg-primary bg-opacity-25 text-primary border border-primary border-opacity-50 px-2 py-1" style="font-size: 11px;">
+          <i class="bi bi-shield-lock-fill me-1"></i> SECURE
+        </span>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category if category != 'error' else 'danger' }} py-2 px-3 mb-4 bg-dark border-{{ category }} text-light" role="alert" style="font-size: 13px;">
+              <i class="bi bi-exclamation-circle-fill me-1 text-{{ category }}"></i> {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.login') }}">
+        <div class="mb-3">
+          <label class="form-tech-label" for="username">
+            <i class="bi bi-person-fill me-1 text-primary"></i> Username or Email
+          </label>
+          <input type="text" class="form-control form-tech-control" id="username" name="username" placeholder="admin" value="admin" required autofocus>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-tech-label" for="password">
+            <i class="bi bi-key-fill me-1 text-primary"></i> Password
+          </label>
+          <input type="password" class="form-control form-tech-control" id="password" name="password" placeholder="••••••••" value="admin123" required>
+        </div>
+
+        <button type="submit" class="btn btn-tech-primary w-100 py-3 justify-content-center fw-bold fs-6">
+          <i class="bi bi-box-arrow-in-right"></i> Authenticate & Access
+        </button>
+      </form>
+
+      <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 text-center text-muted" style="font-size: 12px;">
+        <i class="bi bi-info-circle me-1"></i> Default Demo Credentials: <span class="text-light fw-bold">admin</span> / <span class="text-light fw-bold">admin123</span>
+      </div>
+    </div>
+
+    <div class="text-center mt-4 text-muted" style="font-size: 12px;">
+      &copy; 2026 AI Face Recognition Attendance System &bull; Institutional Biometric Framework
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

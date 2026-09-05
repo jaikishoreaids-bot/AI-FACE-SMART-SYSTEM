@@ -1,0 +1,54 @@
+{
+  "name": "VisionAttenda AI - Face Recognition Attendance System",
+  "short_name": "VisionAttenda",
+  "description": "Production-grade AI Face Recognition Attendance Management System",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0e17",
+  "theme_color": "#06b6d4",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/static/images/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/images/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/images/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Live Scanner",
+      "short_name": "Scanner",
+      "description": "Launch real-time face recognition attendance scanner",
+      "url": "/live",
+      "icons": [{ "src": "/static/images/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Register Student",
+      "short_name": "Register",
+      "description": "Enroll a student with facial biometrics",
+      "url": "/register",
+      "icons": [{ "src": "/static/images/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Attendance Records",
+      "short_name": "Records",
+      "description": "View attendance ledger & export reports",
+      "url": "/attendance",
+      "icons": [{ "src": "/static/images/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
